@@ -2,11 +2,11 @@ package com.example.tutorial_baeldung_react_spring_boot.controller;
 
 import com.example.tutorial_baeldung_react_spring_boot.model.Client;
 import com.example.tutorial_baeldung_react_spring_boot.repository.ClientRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
@@ -29,7 +29,26 @@ public class ClientsController {
         return clientRepository.findById(id).orElseThrow(RuntimeException::new);
     }
 
+    @PostMapping
+    public ResponseEntity createClient(@RequestBody Client client) throws URISyntaxException {
+        Client savedClient = clientRepository.save(client);
+        return ResponseEntity.created(new URI("/clients/" + savedClient.getId())).body(savedClient);
+    }
 
+    @PutMapping("/{id}")
+    public ResponseEntity updateClient(@PathVariable Long id, @RequestBody Client client) {
+        Client currentClient = clientRepository.findById(id).orElseThrow(RuntimeException::new);
+        currentClient.setName(client.getName());
+        currentClient.setEmail(client.getEmail());
+
+        return ResponseEntity.ok(currentClient);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteClient(@PathVariable Long id) {
+        clientRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
 
 
 
